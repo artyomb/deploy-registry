@@ -40,6 +40,7 @@ GEM
       protocol-rack (~> 0.7)
       protocol-websocket (~> 0.17)
     base64 (0.2.0)
+    bigdecimal (3.1.9)
     console (1.30.2)
       fiber-annotation
       fiber-local (~> 1.1)
@@ -136,6 +137,8 @@ GEM
     sass-listen (4.0.0)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
+    sequel (5.86.0)
+      bigdecimal
     sinatra (4.1.1)
       logger (>= 1.6.0)
       mustermann (~> 3.0)
@@ -154,6 +157,7 @@ GEM
     slim (5.2.1)
       temple (~> 0.10.0)
       tilt (>= 2.1.0)
+    sqlite3 (2.4.0-x86_64-linux-gnu)
     stack-service-base (0.0.2)
       prometheus-client
     temple (0.10.3)
@@ -174,9 +178,11 @@ DEPENDENCIES
   rackup
   rubocop
   sass
+  sequel
   sinatra
   sinatra-reloader
   slim
+  sqlite3
   stack-service-base
 
 BUNDLED WITH

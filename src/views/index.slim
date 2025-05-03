@@ -1,1 +1,12 @@
 h1 = "Hello Deploy"
+ruby:
+  columns = Deploy.columns
+  deploys = Deploy.all
+table
+  tr
+    - columns.each do |k|
+      th = k
+  - deploys.each do |d|
+    tr
+      - columns.each do |k|
+        td = d[k]

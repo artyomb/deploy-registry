@@ -10,6 +10,8 @@ gem 'sass'
 
 gem 'rack'
 gem 'rackup'
+gem 'sequel'
+gem 'sqlite3'
 
 gem 'stack-service-base'
 
