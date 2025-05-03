@@ -1,7 +1,7 @@
 h1 = "Hello Deploy"
 ruby:
   columns = Deploy.columns
-  deploys = Deploy.order(id: :desc).all
+  deploys = Deploy.order(Sequel.desc(:id)).all
 
 table
   tr
