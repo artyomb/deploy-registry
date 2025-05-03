@@ -33,6 +33,7 @@ get '*', &-> { slim :index }
 
 post '*/api/v1/swarm_deploy' do
   json_params = JSON.parse request.body.read, symbolize_names: true
+  json_params[:stack] = json_params[:stack].to_json
   deploy = Deploy.new json_params
   deploy.save
   content_type :json
