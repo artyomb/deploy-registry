@@ -31,13 +31,6 @@ StackServiceBase.rack_setup self
 
 get '*', &-> { slim :index }
 
-get '*/api/v1/deploys' do
-  stack_name = params[:stack_name]
-  deploys = Deploy.where(stack_name: stack_name).order(Sequel.desc(:id)).all
-  content_type :json
-  deploys.map(&:values).to_json
-end
-
 post '*/api/v1/swarm_deploy' do
   json_params = JSON.parse request.body.read, symbolize_names: true
   json_params[:stack] = json_params[:stack].to_json

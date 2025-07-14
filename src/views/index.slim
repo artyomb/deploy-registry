@@ -1,58 +1,13 @@
-h1 Deploy Dashboard
-
+h1 = "Hello Deploy"
 ruby:
-  grouped_deploys = Deploy.order(Sequel.desc(:id)).limit(100).all.group_by { |d| d[:stack_name] }
   columns = Deploy.columns
+  deploys = Deploy.order(Sequel.desc(:id)).limit(100).all
 
-table#stack-table
-  thead
+table
+  tr
+    - columns.each do |k|
+      th = k
+  - deploys.each do |d|
     tr
-      th Stack Name
-      th Deploy Count
-  tbody
-    - grouped_deploys.each do |stack_name, deploys|
-      tr.stack-row data-stack-name=stack_name
-        td.stack_name = stack_name
-        td = deploys.count
-
-#detail-container style="display: none;"
-  h2 Details for <span id="stack-name"></span>
-  table#detail-table
-    thead
-      tr
-        - columns.each do |k|
-          th class=k.to_s = k
-    tbody#detail-body
-
-javascript:
-  document.addEventListener('DOMContentLoaded', () => {
-    const stackRows = document.querySelectorAll('.stack-row');
-    const detailContainer = document.querySelector('#detail-container');
-    const detailBody = document.querySelector('#detail-body');
-    const stackNameSpan = document.querySelector('#stack-name');
-    const BASE_PATH = window.location.pathname.match(/(.*deploy-registry)/)?.[1] || '';
-
-    stackRows.forEach(row => {
-      row.addEventListener('click', () => {
-        const stackName = row.dataset.stackName;
-        stackNameSpan.textContent = stackName;
-        detailBody.innerHTML = '';
-
-        fetch(`${BASE_PATH}/api/v1/deploys?stack_name=${encodeURIComponent(stackName)}`)
-          .then(response => response.json())
-          .then(data => {
-            data.forEach(deploy => {
-              const row = document.createElement('tr');
-              row.innerHTML = `
-                #{
-                  columns.map { |k| "<td class='#{k}'>${deploy['#{k}'] || ''}</td>" }.join('\n')
-                }
-              `;
-              detailBody.appendChild(row);
-            });
-            detailContainer.style.display = 'block';
-          })
-          .catch(error => console.error('Error fetching details:', error));
-      });
-    });
-  });
+      - columns.each do |k|
+        td = d[k]
