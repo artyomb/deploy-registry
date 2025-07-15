@@ -1,15 +1,9 @@
 h1 style="text-align: center;" = "Deploy Dashboard"
 ruby:
-  #columns = [:id, :deploy_host, :docker_context, :deploy_command, :stack_name, :deploy_status, :stack, :created_at, :updated_at]
   columns = Deploy.columns
   deploys = Deploy.order(Sequel.desc(:id)).limit(100).all
   deploy_groups_by_stack = deploys.group_by { |d| d.stack_name }
   deploy_groups_by_host = deploys.group_by { |d| d.deploy_host }
-  #deploys.each do |d|
-  #  d[:formatted_date] = d.created_at.strftime("%Y-%m-%d %H:%M")
-  #  d[:formatted_date] = d.updated_at.strftime("%Y-%m-%d %H:%M")
-  #  d[:formatted_stack] = d.stack_name.gsub(/_/, '<span class="stack-part">\0</span>')
-  #end
 
 h1 Deploy Groups by Stack
 pre: ul
