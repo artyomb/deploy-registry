@@ -1,0 +1,11 @@
+- if params[:id]
+  ruby:
+    require 'yaml'
+    row = DB["SELECT stack, stack_name FROM deploys WHERE id = ?", params[:id].to_i].first
+    parsed_stack = JSON.parse(row[:stack])
+    parsed_stack = JSON.parse(parsed_stack) if parsed_stack.is_a?(String)
+    yaml_data = parsed_stack.to_yaml
+
+  h1 Stack Data for Deploy ID: #{params[:id]}
+  pre.yaml-display
+    = yaml_data

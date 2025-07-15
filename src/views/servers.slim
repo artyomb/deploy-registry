@@ -22,6 +22,8 @@
         - columns.each do |k|
           - if k == :deploy_host
             td: a href="/stack?stack=#{d[:stack_name]}" #{d[:stack_name]}
+          - elsif k == :stack
+            td: a href="/inspect?id=#{d[:id]}" #{d[:stack]}
           - else
             td == d[k]
 sass:
