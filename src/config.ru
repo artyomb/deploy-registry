@@ -35,7 +35,7 @@ get '/stacks', &-> { slim :stacks }
 get '/servers', &-> { slim :servers }
 get '/host', &-> { slim :host }
 get '/stack', &-> { slim :stack }
-get '/inspect', &-> { slim :inspectZ }
+get '/inspect', &-> { slim :inspect }
 
 post '*/api/v1/swarm_deploy' do
   json_params = JSON.parse request.body.read, symbolize_names: true
