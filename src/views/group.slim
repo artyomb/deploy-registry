@@ -1,0 +1,36 @@
+- if params[:type] && params[:group]
+  ruby:
+    columns = [:id, :deploy_host, :docker_context, :deploy_command, :stack_name, :deploy_status, :stack, :created_at, :updated_at]
+    current_group = params[:group]
+    group_type = params[:type]
+    deploys = Deploy.order(Sequel.desc(:created_at)).limit(100).all
+    deploy_groups = deploys.group_by { |d| group_type == 'stack' ? d.stack_name : d.deploy_host }
+    group_deploys = deploy_groups[current_group] || []
+    group_label = group_type == 'stack' ? 'Stack' : 'Host'
+
+  h1 #{group_label}: #{current_group}
+  pre: table
+    tr
+      - columns.each do |k|
+        th = k.to_s.gsub('_', ' ').capitalize
+    - group_deploys.each do |d|
+      tr class="status-#{d.deploy_status}"
+        - columns.each do |k|
+          td == d[k]
+sass:
+  .stack-part
+    color: #666
+    font-weight: normal
+
+  table
+    width: 100%
+    border-collapse: collapse
+    th, td
+      padding: 8px
+      border: 1px solid #ddd
+    tr:nth-child(even)
+      background-color: #f2f2f2
+    tr.status-failed
+      background-color: #ffdddd
+    tr.status-success
+      background-color: #ddffdd
