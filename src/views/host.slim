@@ -1,0 +1,34 @@
+- if params[:host]
+  ruby:
+    columns = Deploy.columns
+    current_host = params[:host]
+    host_deploys = DB["SELECT * FROM deploys WHERE deploy_host = ? ORDER BY id DESC", current_host].all
+
+  h1 Host: #{current_host}
+  pre: table
+    tr
+      - columns.each do |k|
+        th = k.to_s.gsub('_', ' ').capitalize
+    - host_deploys.each do |d|
+      - next unless d[:deploy_status]
+      tr class="status-#{d[:deploy_status]}"
+        - columns.each do |k|
+          td = d[k]
+
+sass:
+  .stack-part
+    color: #666
+    font-weight: normal
+
+  table
+    width: 100%
+    border-collapse: collapse
+    th, td
+      padding: 8px
+      border: 1px solid #ddd
+    tr:nth-child(even)
+      background-color: #f2f2f2
+    tr.status-failed
+      background-color: #ffdddd
+    tr.status-success
+      background-color: #ddffdd

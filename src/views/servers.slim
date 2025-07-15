@@ -1,0 +1,43 @@
+- if params[:group]
+  ruby:
+    columns = Deploy.columns
+    current_group = params[:group]
+    group_label = 'Host'
+    group_deploys = DB["
+      SELECT * FROM (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY stack_name ORDER BY id DESC) as rn
+        FROM deploys WHERE deploy_host = ?
+      ) t WHERE rn = 1
+      ORDER BY id DESC
+    ", current_group].all
+
+  h1 #{group_label}: #{current_group}
+  pre: table
+    tr
+      - columns.each do |k|
+        th = k.to_s.gsub('_', ' ').capitalize
+    - group_deploys.each do |d|
+      - next unless d[:deploy_status]
+      tr class="status-#{d[:deploy_status]}"
+        - columns.each do |k|
+          - if k == :deploy_host
+            td: a href="/stack?stack=#{d[:stack_name]}" #{d[:stack_name]}
+          - else
+            td == d[k]
+sass:
+  .stack-part
+    color: #666
+    font-weight: normal
+
+  table
+    width: 100%
+    border-collapse: collapse
+    th, td
+      padding: 8px
+      border: 1px solid #ddd
+    tr:nth-child(even)
+      background-color: #f2f2f2
+    tr.status-failed
+      background-color: #ffdddd
+    tr.status-success
+      background-color: #ddffdd

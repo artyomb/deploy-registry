@@ -1,12 +1,15 @@
-- if params[:type] && params[:group]
+- if params[:group]
   ruby:
-    columns = [:id, :deploy_host, :docker_context, :deploy_command, :stack_name, :deploy_status, :stack, :created_at, :updated_at]
+    columns = Deploy.columns
     current_group = params[:group]
-    group_type = params[:type]
-    deploys = Deploy.order(Sequel.desc(:created_at)).limit(100).all
-    deploy_groups = deploys.group_by { |d| group_type == 'stack' ? d.stack_name : d.deploy_host }
-    group_deploys = deploy_groups[current_group] || []
-    group_label = group_type == 'stack' ? 'Stack' : 'Host'
+    group_label = 'Stack'
+    group_deploys = DB["
+      SELECT * FROM (
+        SELECT *, ROW_NUMBER() OVER (PARTITION BY deploy_host ORDER BY id DESC) as rn
+        FROM deploys WHERE stack_name = ?
+      ) t WHERE rn = 1
+      ORDER BY id DESC
+    ", current_group].all
 
   h1 #{group_label}: #{current_group}
   pre: table
@@ -14,9 +17,13 @@
       - columns.each do |k|
         th = k.to_s.gsub('_', ' ').capitalize
     - group_deploys.each do |d|
-      tr class="status-#{d.deploy_status}"
+      - next unless d[:deploy_status]
+      tr class="status-#{d[:deploy_status]}"
         - columns.each do |k|
-          td == d[k]
+          - if k == :deploy_host
+            td: a href="/host?host=#{d[:deploy_host]}" #{d[:deploy_host]}
+          - else
+            td == d[k]
 sass:
   .stack-part
     color: #666

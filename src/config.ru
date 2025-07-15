@@ -5,7 +5,7 @@ require 'sinatra/reloader'
 require 'async/websocket/adapters/rack'
 
 require 'sequel'
-DB = Sequel.connect('sqlite:///data/deploy.db')
+DB = Sequel.connect('sqlite://./data/deploy.db')
 
 DB.create_table? :deploys do
   primary_key :id
@@ -31,9 +31,11 @@ StackServiceBase.rack_setup self
 
 get '/', &-> { slim :index }
 
-get '/group', &-> { slim :group }
+# get '/group', &-> { slim :servers }
 get '/stacks', &-> { slim :stacks }
 get '/servers', &-> { slim :servers }
+get '/host', &-> { slim :host }
+get '/stack', &-> { slim :stack }
 
 post '*/api/v1/swarm_deploy' do
   json_params = JSON.parse request.body.read, symbolize_names: true

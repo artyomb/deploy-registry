@@ -1,20 +1,19 @@
 h1 style="text-align: center;" = "Deploy Dashboard"
 ruby:
   columns = Deploy.columns
-  deploys = Deploy.order(Sequel.desc(:id)).limit(100).all
-  res = Deploy.dataset.fetch "SELECT stack_name, COUNT(*) FROM deploys GROUP BY stack_name"
-
-  deploy_groups_by_stack = deploys.group_by { |d| d.stack_name }
-  deploy_groups_by_host = deploys.group_by { |d| d.deploy_host }
+  stack_groups = DB["SELECT stack_name, COUNT(*) as count FROM deploys GROUP BY stack_name"].all
+  host_groups = DB["SELECT deploy_host, COUNT(*) as count FROM deploys GROUP BY deploy_host"].all
 
 h1 Deploy Groups by Stack
 pre: ul
-  - deploy_groups_by_stack.each do |group_name, group_deploys|
-    li: a href="/group?type=stack&group=#{group_name}" #{group_name} (#{group_deploys.count})
+  - stack_groups.each do |group|
+    - next if group[:stack_name].nil? || group[:stack_name].empty?
+    li: a href="/stacks?group=#{group[:stack_name]}" #{group[:stack_name]} (#{group[:count]})
 
 h1 Deploy Groups by Host
 pre: ul
-  - deploy_groups_by_host.each do |group_name, group_deploys|
-    li: a href="/group?type=host&group=#{group_name}" #{group_name} (#{group_deploys.count})
+  - host_groups.each do |group|
+    - next if group[:deploy_host].nil? || group[:deploy_host].empty?
+    li: a href="/servers?group=#{group[:deploy_host]}" #{group[:deploy_host]} (#{group[:count]})
 
-pre = JSON.parse(row[:stack]).to_yaml
+/ pre = JSON.parse(row[:stack]).to_yaml

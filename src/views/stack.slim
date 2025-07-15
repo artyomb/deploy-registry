@@ -1,0 +1,34 @@
+- if params[:stack]
+  ruby:
+    columns = Deploy.columns
+    current_stack = params[:stack]
+    stack_deploys = DB["SELECT * FROM deploys WHERE stack_name = ? ORDER BY id DESC", current_stack].all
+
+  h1 Stack: #{current_stack}
+  pre: table
+    tr
+      - columns.each do |k|
+        th = k.to_s.gsub('_', ' ').capitalize
+    - stack_deploys.each do |d|
+      - next unless d[:deploy_status]
+      tr class="status-#{d[:deploy_status]}"
+        - columns.each do |k|
+          td = d[k]
+
+sass:
+  .stack-part
+    color: #666
+    font-weight: normal
+
+  table
+    width: 100%
+    border-collapse: collapse
+    th, td
+      padding: 8px
+      border: 1px solid #ddd
+    tr:nth-child(even)
+      background-color: #f2f2f2
+    tr.status-failed
+      background-color: #ffdddd
+    tr.status-success
+      background-color: #ddffdd
