@@ -6,6 +6,6 @@
     parsed_stack = JSON.parse(parsed_stack) if parsed_stack.is_a?(String)
     yaml_data = parsed_stack.to_yaml
 
-  h1 Stack Data for Deploy ID: #{params[:id]}
+  h1 Inspect stack: #{params[:stack_name]}
   pre.yaml-display
     = yaml_data

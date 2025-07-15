@@ -20,10 +20,10 @@
       - next unless d[:deploy_status]
       tr class="status-#{d[:deploy_status]}"
         - columns.each do |k|
-          - if k == :deploy_host
+          - if k == :stack_name
             td: a href="/stack?stack=#{d[:stack_name]}" #{d[:stack_name]}
           - elsif k == :stack
-            td: a href="/inspect?id=#{d[:id]}" #{d[:stack]}
+            td: a href="/inspect?id=#{d[:id]}&stack_name=#{d[:stack_name]}" #{d[:stack]}
           - else
             td == d[k]
 sass:
