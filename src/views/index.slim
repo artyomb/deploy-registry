@@ -2,6 +2,8 @@ h1 style="text-align: center;" = "Deploy Dashboard"
 ruby:
   columns = Deploy.columns
   deploys = Deploy.order(Sequel.desc(:id)).limit(100).all
+  res = Deploy.dataset.fetch "SELECT stack_name, COUNT(*) FROM deploys GROUP BY stack_name"
+
   deploy_groups_by_stack = deploys.group_by { |d| d.stack_name }
   deploy_groups_by_host = deploys.group_by { |d| d.deploy_host }
 
@@ -14,3 +16,5 @@ h1 Deploy Groups by Host
 pre: ul
   - deploy_groups_by_host.each do |group_name, group_deploys|
     li: a href="/group?type=host&group=#{group_name}" #{group_name} (#{group_deploys.count})
+
+pre = JSON.parse(row[:stack]).to_yaml

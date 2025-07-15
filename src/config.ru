@@ -32,6 +32,8 @@ StackServiceBase.rack_setup self
 get '/', &-> { slim :index }
 
 get '/group', &-> { slim :group }
+get '/stacks', &-> { slim :stacks }
+get '/servers', &-> { slim :servers }
 
 post '*/api/v1/swarm_deploy' do
   json_params = JSON.parse request.body.read, symbolize_names: true
