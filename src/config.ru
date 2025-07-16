@@ -30,6 +30,8 @@ helpers do
     case obj
     when Hash
       obj.values.each { |v| result = find_traefik_string(v); return result if result }
+    when Array
+      obj.each { |v| result = find_traefik_string(v); return result if result }
     when String
       return obj if obj.match?(/traefik\.http\.routers\..*\.tls\.domains\[0\]\.main=.+/)
     end
