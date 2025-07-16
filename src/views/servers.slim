@@ -10,8 +10,6 @@
       ) t WHERE rn = 1
       ORDER BY id DESC
     ", current_group].all
-    logger.info "Получено #{group_deploys.count} записей для хоста: #{current_group}"
-    puts "DEBUG: Получено #{group_deploys.count} записей для хоста: #{current_group}"
 
 
   h1 #{group_label}: #{current_group}
@@ -29,7 +27,6 @@
                               stack_data = JSON.parse(d[:stack])
                               stack_data = JSON.parse(stack_data) if stack_data.is_a?(String)
                               traefik_string = find_traefik_string(stack_data)
-                              puts "DEBUG: stack_name: #{d[:stack_name]}, строка: #{traefik_string || 'не найдена'}"
                               if traefik_string
                                 domain = traefik_string.split('=', 2).last
                                 modified_domain = domain.start_with?('http://', 'https://') ? domain : "https://insight.#{domain}"
