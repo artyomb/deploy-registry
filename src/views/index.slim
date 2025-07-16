@@ -1,19 +1,85 @@
 h1 style="text-align: center;" = "Deploy Dashboard"
 ruby:
   columns = Deploy.columns
-  stack_groups = DB["SELECT stack_name, COUNT(*) as count FROM deploys GROUP BY stack_name"].all
-  host_groups = DB["SELECT deploy_host, COUNT(*) as count FROM deploys GROUP BY deploy_host"].all
+  stack_groups = DB["SELECT stack_name, COUNT(DISTINCT deploy_host) as unique_hosts, COUNT(*) as count FROM deploys GROUP BY stack_name"].all
+  host_groups = DB["SELECT deploy_host, COUNT(DISTINCT stack_name) as unique_hosts, COUNT(*) as count FROM deploys GROUP BY deploy_host"].all
 
 h1 Deploy Groups by Stack
-pre: ul
-  - stack_groups.each do |group|
-    - next if group[:stack_name].nil? || group[:stack_name].empty?
-    li: a href="/stacks?group=#{group[:stack_name]}" #{group[:stack_name]} (#{group[:count]})
+table.table-dashboard
+  thead
+    tr
+      th Stack
+      th Servers
+      th Deploys
+  tbody
+    - stack_groups.each do |group|
+      - next if group[:stack_name].nil? || group[:stack_name].empty?
+      tr
+        td
+          a href="/stacks?group=#{group[:stack_name]}" #{group[:stack_name]}
+        td #{group[:unique_hosts]} host#{group[:unique_hosts] == 1 ? '' : 's'}
+        td #{group[:count]} deploys
 
 h1 Deploy Groups by Host
-pre: ul
-  - host_groups.each do |group|
-    - next if group[:deploy_host].nil? || group[:deploy_host].empty?
-    li: a href="/servers?group=#{group[:deploy_host]}" #{group[:deploy_host]} (#{group[:count]})
+table.table-dashboard
+  thead
+    tr
+      th Server
+      th Stacks
+      th Deploys
+  tbody
+    - host_groups.each do |group|
+      - next if group[:deploy_host].nil? || group[:deploy_host].empty?
+      tr
+        td
+          a href="/servers?group=#{group[:deploy_host]}" #{group[:deploy_host]}
+        td #{group[:unique_hosts]} stack#{group[:unique_hosts] == 1 ? '' : 's'}
+        td #{group[:count]} deploys
 
-/ pre = JSON.parse(row[:stack]).to_yaml
+sass:
+  table.table-dashboard
+    width: 80%
+    max-width: 800px
+    margin: 20px 0
+    border-collapse: separate
+    border-spacing: 0
+    background: #fff
+    border-radius: 8px
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1)
+    overflow: hidden
+
+    th, td
+      padding: 12px 15px
+      border: none
+      text-align: left
+      font-size: 1em
+
+    th
+      background-color: #343a40
+      color: #fff
+      font-weight: 600
+      text-transform: uppercase
+      letter-spacing: 0.5px
+
+      &:first-child
+        border-top-left-radius: 8px
+
+      &:last-child
+        border-top-right-radius: 8px
+
+    tr
+      transition: background-color 0.2s
+
+      &:nth-child(even)
+        background-color: #f2f2f2
+
+      &:hover
+        background-color: #e9ecef
+
+    a
+      text-decoration: none
+      color: #007bff
+
+      &:hover
+        color: #0056b3
+        text-decoration: underline
