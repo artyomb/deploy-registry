@@ -11,6 +11,7 @@
       ORDER BY id DESC
     ", current_group].all
 
+
   h1 #{group_label}: #{current_group}
   pre: table
     tr
@@ -21,7 +22,22 @@
       tr class="status-#{d[:deploy_status]}"
         - columns.each do |k|
           - if k == :stack_name
-            td: a href="/stack?stack=#{d[:stack_name]}" #{d[:stack_name]}
+            ruby:
+              insight_url = begin
+                              stack_data = JSON.parse(d[:stack])
+                              stack_data = JSON.parse(stack_data) if stack_data.is_a?(String)
+                              traefik_string = find_traefik_string(stack_data)
+                              if traefik_string
+                                domain = traefik_string.split('=', 2).last
+                                modified_domain = domain.start_with?('http://', 'https://') ? domain : "https://insight.#{domain}"
+                                modified_domain
+                              else
+                                '#'
+                              end
+                            rescue StandardError => e
+                              '#'
+                            end
+            td: a href=insight_url #{d[:stack_name]}
           - elsif k == :stack
             td: a href="/inspect?id=#{d[:id]}&stack_name=#{d[:stack_name]}" #{d[:stack]}
           - else

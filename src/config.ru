@@ -25,6 +25,20 @@ class Deploy < Sequel::Model
   plugin :timestamps, create: :created_at, update: :updated_at, update_on_create: true
 end
 
+helpers do
+  def find_traefik_string(obj)
+    case obj
+    when Hash
+      obj.values.each { |v| result = find_traefik_string(v); return result if result }
+    when Array
+      obj.each { |v| result = find_traefik_string(v); return result if result }
+    when String
+      return obj if obj.match?(/traefik\.http\.routers\..*\.tls\.domains\[0\]\.main=.+/)
+    end
+    nil
+  end
+end
+
 require 'stack-service-base'
 
 StackServiceBase.rack_setup self
