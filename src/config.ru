@@ -26,12 +26,12 @@ class Deploy < Sequel::Model
 end
 
 helpers do
-  def find_traefik_values(data, main_key, rule_key, depth = 0)
+  def find_traefik_values(data, main_key, rule_key)
     result = { main: nil, rule: nil }
     case data
     when Hash
-      data.each do |k, v|
-        sub_result = find_traefik_values(v, main_key, rule_key, depth + 1)
+      data.each do |_, v|
+        sub_result = find_traefik_values(v, main_key, rule_key)
         result[:main] ||= sub_result[:main]
         result[:rule] ||= sub_result[:rule]
       end
@@ -45,7 +45,7 @@ helpers do
             result[:rule] = v.split('=', 2).last.strip
           end
         else
-          sub_result = find_traefik_values(v, main_key, rule_key, depth + 1)
+          sub_result = find_traefik_values(v, main_key, rule_key)
           result[:main] ||= sub_result[:main]
           result[:rule] ||= sub_result[:rule]
         end
