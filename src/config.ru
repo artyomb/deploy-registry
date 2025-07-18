@@ -5,7 +5,7 @@ require 'sinatra/reloader'
 require 'async/websocket/adapters/rack'
 
 require 'sequel'
-DB = Sequel.connect('sqlite:///data/deploy.db')
+DB = Sequel.connect('sqlite://./data/deploy.db')
 
 DB.create_table? :deploys do
   primary_key :id
