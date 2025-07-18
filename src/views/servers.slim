@@ -12,36 +12,35 @@
     ", current_group].all
     header_suffix = ''
     insight_url = '#'
-    has_stack_insight = false
+    has_valid_stack_insight = false
     group_deploys.each do |d|
       if d[:stack_name] == 'stack-insight'
-        has_stack_insight = true
         begin
           stack_data = JSON.parse(d[:stack])
           stack_data = JSON.parse(stack_data) if stack_data.is_a?(String)
           main_key = 'traefik.http.routers.stack-insight_stack_insight-0.tls.domains[0].main'
           rule_key = 'traefik.http.routers.stack-insight_stack_insight-0.rule'
           traefik_values = find_traefik_values(stack_data, main_key, rule_key)
-          if traefik_values[:main]
+          if traefik_values[:main] && traefik_values[:rule]
+            has_valid_stack_insight = true
             domain = traefik_values[:main].start_with?('http://', 'https://') ? traefik_values[:main] : "https://#{traefik_values[:main]}"
             clean_domain = domain.sub(/^https?:\/\//, '').sub(/^insight\./, '')
-            if traefik_values[:rule]&.match(/HostRegexp\s*\(`{name:insight\.\.[^\}]*}\`\)/)
+            if traefik_values[:rule].match(/HostRegexp\s*\(`{name:insight\.\.[^\}]*}\`\)/)
               header_suffix = " (#{clean_domain})"
               insight_url = domain
-            elsif traefik_values[:rule]&.match(/PathPrefix\s*\(`([^`]+)`\)/)
+            elsif traefik_values[:rule].match(/PathPrefix\s*\(`([^`]+)`\)/)
               path = $1
               header_suffix = " (#{clean_domain}#{path})"
               insight_url = "https://insight.#{clean_domain}#{path}"
             end
           end
-        rescue StandardError
         end
       end
     end
 
   h1
     | #{group_label}:
-    - if has_stack_insight
+    - if has_valid_stack_insight
       a href=insight_url #{current_group}
     - else
       | #{current_group}
@@ -55,11 +54,11 @@
       tr class="status-#{d[:deploy_status]}"
         - columns.each do |k|
           - if k == :stack_name
-            td: a href="/stack?stack=#{d[:stack_name]}" #{d[:stack_name]}
+            td = d[:stack_name]
           - elsif k == :stack
             td: a href="/inspect?id=#{d[:id]}&stack_name=#{d[:stack_name]}" #{d[:stack]}
           - else
-            td == (k == :created_at || k == :updated_at ? d[k].strftime("%Y-%m-%d %H:%M") : d[k])
+            td == d[k]
 
 sass:
   .stack-part
