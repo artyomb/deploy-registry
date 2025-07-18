@@ -26,16 +26,32 @@ class Deploy < Sequel::Model
 end
 
 helpers do
-  def find_traefik_string(obj)
-    case obj
+  def find_traefik_values(data, main_key, rule_key, depth = 0)
+    result = { main: nil, rule: nil }
+    case data
     when Hash
-      obj.values.each { |v| result = find_traefik_string(v); return result if result }
+      data.each do |k, v|
+        sub_result = find_traefik_values(v, main_key, rule_key, depth + 1)
+        result[:main] ||= sub_result[:main]
+        result[:rule] ||= sub_result[:rule]
+      end
     when Array
-      obj.each { |v| result = find_traefik_string(v); return result if result }
-    when String
-      return obj if obj.match?(/traefik\.http\.routers\..*\.tls\.domains\[0\]\.main=.+/)
+      data.each do |v|
+        if v.is_a?(String)
+          v = v.strip
+          if v.start_with?(main_key + '=')
+            result[:main] = v.split('=', 2).last.strip
+          elsif v.start_with?(rule_key + '=')
+            result[:rule] = v.split('=', 2).last.strip
+          end
+        else
+          sub_result = find_traefik_values(v, main_key, rule_key, depth + 1)
+          result[:main] ||= sub_result[:main]
+          result[:rule] ||= sub_result[:rule]
+        end
+      end
     end
-    nil
+    result
   end
 end
 

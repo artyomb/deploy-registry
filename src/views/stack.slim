@@ -2,7 +2,7 @@
   ruby:
     columns = Deploy.columns
     current_stack = params[:stack]
-    stack_deploys = DB["SELECT * FROM deploys WHERE stack_name = ? ORDER BY id DESC", current_stack].all
+    stack_deploys = DB["SELECT * FROM deploys WHERE stack_name = ? ORDER BY id DESC LIMIT 100", current_stack].all
 
   h1 Stack: #{current_stack}
   pre: table
