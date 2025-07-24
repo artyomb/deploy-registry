@@ -5,7 +5,7 @@ require 'sinatra/reloader'
 require 'async/websocket/adapters/rack'
 
 require 'sequel'
-DB = Sequel.connect('sqlite://./data/deploy.db')
+DB = Sequel.connect('sqlite:///data/deploy.db')
 
 DB.create_table? :deploys do
   primary_key :id
@@ -66,7 +66,7 @@ helpers do
       data.each do |v|
         if v.is_a?(String)
           v = v.strip
-          if v.match?(/traefik\.http\.routers\.[^\.]+\-0\.tls\.domains\[0\]\.main=/)
+          if v.match?(/traefik\.http\.routers\.[^\.]+\.tls\.domains\[0\]\.main=/)
             result = v.split('=', 2).last.strip
             break
           end
