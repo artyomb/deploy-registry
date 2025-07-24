@@ -33,18 +33,14 @@ table.table-dashboard
       - next if group[:deploy_host].nil? || group[:deploy_host].empty?
       - domain = ''
       - begin
-      -   host_deploys = DB["SELECT stack FROM deploys WHERE deploy_host = ?", group[:deploy_host]].all
-      -   host_deploys.each do |deploy|
-      -     next unless deploy[:stack]
-      -     stack_data = JSON.parse(deploy[:stack])
-      -     domain_value = find_traefik_domain(stack_data)
-      -     if domain_value
-      -       domain = domain_value.sub(/^insight\./, '')
-      -       break
-      -     end
-      -   end
-      - rescue StandardError
-      - end
+        - host_deploys = DB["SELECT stack FROM deploys WHERE deploy_host = ?", group[:deploy_host]].all
+        - host_deploys.each do |deploy|
+          - next unless deploy[:stack]
+          - stack_data = JSON.parse(deploy[:stack])
+          - domain_value = find_traefik_domain(stack_data)
+          - if domain_value
+            - domain = domain_value.sub(/^insight\./, '')
+            - break
       tr
         td
           a href="/servers?group=#{group[:deploy_host]}" #{group[:deploy_host]}
