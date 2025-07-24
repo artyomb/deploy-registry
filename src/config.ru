@@ -53,31 +53,31 @@ helpers do
     end
     result
   end
-end
 
-def find_traefik_domain(data)
-  result = nil
-  case data
-  when Hash
-    data.each do |_, v|
-      sub_result = find_traefik_domain(v)
-      result ||= sub_result
-    end
-  when Array
-    data.each do |v|
-      if v.is_a?(String)
-        v = v.strip
-        if v.match?(/traefik\.http\.routers\.[^\.]+\.tls\.domains\[0\]\.main=/)
-          result = v.split('=', 2).last.strip
-          break
-        end
-      else
+  def find_traefik_domain(data)
+    result = nil
+    case data
+    when Hash
+      data.each do |_, v|
         sub_result = find_traefik_domain(v)
         result ||= sub_result
       end
+    when Array
+      data.each do |v|
+        if v.is_a?(String)
+          v = v.strip
+          if v.match?(/traefik\.http\.routers\.[^\.]+\.tls\.domains\[0\]\.main=/)
+            result = v.split('=', 2).last.strip
+            break
+          end
+        else
+          sub_result = find_traefik_domain(v)
+          result ||= sub_result
+        end
+      end
     end
+    result
   end
-  result
 end
 
 require 'stack-service-base'
