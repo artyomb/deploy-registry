@@ -25,14 +25,30 @@ table.table-dashboard
   thead
     tr
       th Server
+      th Domain
       th Stacks
       th Deploys
   tbody
     - host_groups.each do |group|
       - next if group[:deploy_host].nil? || group[:deploy_host].empty?
+      - domain = ''
+      - begin
+      -   host_deploys = DB["SELECT stack FROM deploys WHERE deploy_host = ?", group[:deploy_host]].all
+      -   host_deploys.each do |deploy|
+      -     next unless deploy[:stack]
+      -     stack_data = JSON.parse(deploy[:stack])
+      -     domain_value = find_traefik_domain(stack_data)
+      -     if domain_value
+      -       domain = domain_value.sub(/^insight\./, '')
+      -       break
+      -     end
+      -   end
+      - rescue StandardError
+      - end
       tr
         td
           a href="/servers?group=#{group[:deploy_host]}" #{group[:deploy_host]}
+        td #{domain}
         td #{group[:unique_hosts]} stack#{group[:unique_hosts] == 1 ? '' : 's'}
         td #{group[:count]} deploys
 
