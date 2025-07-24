@@ -33,14 +33,22 @@ table.table-dashboard
       - next if group[:deploy_host].nil? || group[:deploy_host].empty?
       - domain = ''
       - begin
-        - host_deploys = DB["SELECT stack FROM deploys WHERE deploy_host = ?", group[:deploy_host]].all
-        - host_deploys.each do |deploy|
-          - next unless deploy[:stack]
-          - stack_data = JSON.parse(deploy[:stack])
+        - # Сначала ищем simple-ingress
+        - simple_ingress = DB["SELECT stack FROM deploys WHERE deploy_host = ? AND stack_name = 'simple-ingress'", group[:deploy_host]].first
+        - if simple_ingress && simple_ingress[:stack]
+          - stack_data = JSON.parse(simple_ingress[:stack])
           - domain_value = find_traefik_domain(stack_data)
           - if domain_value
-            - domain = domain_value.sub(/^insight\./, '')
-            - break
+            - domain = domain_value.sub(/^(traefik|registry[^\.]*|insight)\./, '')
+        - else
+          - host_deploys = DB["SELECT stack FROM deploys WHERE deploy_host = ?", group[:deploy_host]].all
+          - host_deploys.each do |deploy|
+            - next unless deploy[:stack]
+            - stack_data = JSON.parse(deploy[:stack])
+            - domain_value = find_traefik_domain(stack_data)
+            - if domain_value
+              - domain = domain_value.sub(/^(traefik|registry[^\.]*|insight)\./, '')
+              - break
       tr
         td
           a href="/servers?group=#{group[:deploy_host]}" #{group[:deploy_host]}
