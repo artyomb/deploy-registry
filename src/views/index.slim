@@ -29,7 +29,11 @@ table.table-dashboard
       th Stacks
       th Deploys
   tbody
-    - simple_ingress = DB["SELECT stack FROM deploys WHERE deploy_host = ? AND stack_name = 'simple-ingress'", group[:deploy_host]].first
+    - host_groups.each do |group|
+      - next if group[:deploy_host].nil? || group[:deploy_host].empty?
+      - domain = ''
+      - begin
+        - simple_ingress = DB["SELECT stack FROM deploys WHERE deploy_host = ? AND stack_name = 'simple-ingress'", group[:deploy_host]].first
         - if simple_ingress && simple_ingress[:stack]
           - stack_data = JSON.parse(simple_ingress[:stack])
           - domain_value = find_traefik_domain(stack_data)
