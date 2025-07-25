@@ -55,28 +55,18 @@ helpers do
   end
 
   def find_traefik_domain(data)
-    result = nil
     case data
     when Hash
-      data.each do |_, v|
-        sub_result = find_traefik_domain(v)
-        result ||= sub_result
-      end
+      data.values.find { |v| domain = find_traefik_domain(v); domain }
     when Array
-      data.each do |v|
+      data.find do |v|
         if v.is_a?(String)
-          v = v.strip
-          if v.match?(/traefik\.http\.routers\.[^\.]+\-0\.tls\.domains\[0\]\.main=/)
-            result = v.split('=', 2).last.strip
-            break
-          end
+          v.strip.match?(/traefik\.http\.routers\.[^\.]+\-0\.tls\.domains\[0\]\.main=([^\s]+)/)
         else
-          sub_result = find_traefik_domain(v)
-          result ||= sub_result
+          find_traefik_domain(v)
         end
-      end
+      end&.then { |s| s.is_a?(String) ? s.split('=', 2).last.strip : s }
     end
-    result
   end
 end
 
